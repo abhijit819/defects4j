@@ -42,6 +42,18 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
     <taskdef resource="net/sf/antcontrib/antlib.xml"
             classpath="${d4j.home}/framework/lib/ant-contrib.jar"/>
 
+    <!--mycode-->
+
+
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath path="${d4j.home}/framework/projects/lib/jacocoant.jar"/>
+    </taskdef>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+    <!--mycode_ends-->
+
+
     <!-- Dependencies used by all projects -->
     <property name="junit.jar"  value="${d4j.home}/framework/projects/lib/junit-4.11.jar"/>
     <property name="cobertura.jar" value="${d4j.home}/framework/projects/lib/cobertura-2.0.3.jar"/>
@@ -307,6 +319,86 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
                     </fileset>
                 </batchtest>
         </junit>
+
+        <!--mycode-->
+        <echo message="========================================My execution begins==============================================" />
+        <echo>${d4j.workdir}</echo>
+        <echo>${d4j.test.dir}</echo>
+        <mkdir dir="${d4j.workdir}/myfolder" />
+        <mkdir dir="${d4j.workdir}/myfolder/test_temp" />
+        <mkdir dir="${d4j.workdir}/myfolder/result" />
+        <mkdir dir="${d4j.workdir}/myfolder/target" />
+
+        <property name="myresult.dir" location="${d4j.workdir}/myfolder/result" />
+        <property name="myresult.exec.file" location="${myresult.dir}/jacoco.exec" />
+        <property name="mytarget.dir" location="${d4j.workdir}/myfolder/target" />
+
+        <for param="i">
+        <path>
+            <fileset dir="${d4j.test.dir}" includes="*.java"/>
+        </path>
+        <!-- <for list="1,2" param="i"> -->
+        <sequential>
+        <!-- <echo>Letter @{i}</echo> -->
+        <!-- <property name="myfile.file" location="${test.dir}/MyTesting_Test@{i}.java" /> -->
+        <!-- <echo>${test.dir}/MyTesting_Test@{i}.java</echo>
+        <echo>${test.dir}</echo> -->
+        <local name="filename" />
+        <basename property="filename" file="@{i}"/>
+        <copy file="${d4j.test.dir}/${filename}" tofile="${d4j.workdir}/myfolder/test_temp/${filename}"/>
+
+        <jacoco:coverage destfile="${myresult.exec.file}" xmlns:jacoco="antlib:org.jacoco.ant" exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader" >
+            <!--<junit haltonfailure="false" fork="true" forkmode="perBatch" printsummary="on">-->
+                <!--<classpath refid="classpath" />-->
+                <!--<classpath location="${result.classes.dir}" />-->
+                <!--<formatter type="xml"/>-->
+                <!--<batchtest fork="yes">-->
+                    <!--<fileset dir="${test.dir}/test_temp" />-->
+                    <!--&lt;!&ndash; <include name="${myfile.file}" />-->
+               <!--</fileset> &ndash;&gt;-->
+                <!--</batchtest>-->
+
+            <!--</junit>-->
+            <junit printsummary="no" haltonfailure="no" haltonerror="no" fork="yes" forkmode="perBatch" showOutput="true">
+                <classpath>
+                    <!-- Make sure that instrumented classes appear at the beginning of the
+                         classpath -->
+                    <pathelement location="${d4j.dir.classes.instrumented}" />
+                    <pathelement path="${build.home}/gen-tests" />
+                    <pathelement path="${formatter.jar}" />
+                    <pathelement path="${junit.jar}" />
+                    <pathelement path="${classes.dir}" />
+                    <path refid="d4j.test.classpath"/>
+                    <!-- Add dependencies to code coverage tools -->
+                    <!--<pathelement path="${cobertura.jar}" />-->
+                    <!-- Add dependencies to runtime libraries of test generation tools -->
+                    <path refid="d4j.lib.testgen.rt"/>
+                </classpath>
+
+                <!--<sysproperty key="OUTFILE" value="${OUTFILE}"/>-->
+                <!--<formatter classname="edu.washington.cs.mut.testrunner.Formatter" usefile="false" />-->
+                <formatter type="xml"/>
+                <!--<test name="${test.entry.class}" methods="${test.entry.method}" if="test.entry.class" />-->
+                <batchtest fork="yes">
+                    <!--<fileset dir="${d4j.test.dir}">-->
+                        <!--<include name="**/${d4j.test.include}"/>-->
+                        <!--&lt;!&ndash; Ignore helper classes that do not contain test cases &ndash;&gt;-->
+                        <!--<exclude name="**/*_scaffolding.java"/>-->
+                    <fileset dir="${d4j.workdir}/myfolder/test_temp" />
+                    <!--</fileset>-->
+                </batchtest>
+            </junit>
+
+        </jacoco:coverage>
+
+            <delete file="${d4j.workdir}/myfolder/test_temp/${filename}" />
+            <copy file="${myresult.exec.file}" tofile="${mytarget.dir}/jacoco_${filename}.exec"/>
+        </sequential>
+        </for>
+        <delete dir="${d4j.workdir}/myfolder/test_temp" />
+        <!--mycode_ends-->
+
+
     </target>
 
 <!--

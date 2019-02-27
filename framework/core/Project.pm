@@ -122,6 +122,14 @@ sub create_project {
     eval { require $module };
     die "Invalid project_id: $pid\n$@" if $@;
 
+    # mycode starts
+   # my $filename = "/home/abhijit/Desktop/mylog1.txt";
+   # open my $fh, ">>", $filename or die("Could not open file. $!");
+   # print $fh $class;
+   #  print $fh $module;
+   # close $fh;
+    # mycode ends
+
     return $class->new();
 }
 
@@ -1072,6 +1080,15 @@ sub _ant_call {
                 " -f $D4J_BUILD_FILE" .
                 " -Dd4j.home=$BASE_DIR" .
                 " -Dbasedir=$self->{prog_root} ${option_str} $target 2>&1";
+
+    #mycode starts
+       # my $filename = "/home/abhijit/Desktop/mylog_ext_tests_coveragepm.txt";
+       # open my $fh, ">>", $filename or die("Could not open file. $!");
+       # print $fh $cmd;
+       # close $fh;
+    #mycode ends
+
+
     my $log;
     my $ret = Utils::exec_cmd($cmd, "Running ant ($target)", \$log);
 

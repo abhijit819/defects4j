@@ -279,6 +279,13 @@ sub _run_coverage {
     $project->{prog_root} = "$root";
     $project->checkout_vid($vid) or die "Checkout failed";
 
+    #mycode starts
+#    my $filename = "/home/abhijit/Desktop/mylog.txt";
+#    open my $fh, ">", $filename or die("Could not open file. $!");
+#    print $fh $project;
+#    close $fh;
+    #mycode ends
+
     # Compile the program version
 	$project->compile() or die "Compilation failed";
 
